@@ -47,8 +47,9 @@ let checkValidate= (obj, phoneDigit)=> {
 		}
 	}
 	if(obj.phoneNumber){
-		if(obj.phoneNumber.length!=phoneDigit)
-		return {'status': false, 'value': obj.phoneNumber};
+		var phoneNumber= obj.phoneNumber;
+		if(phoneNumber.length!=phoneDigit)
+		return {'status': false, 'value': phoneNumber};
 	}
 	if(obj.password){
 		var password= obj.password;

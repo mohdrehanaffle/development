@@ -1,12 +1,12 @@
 'use strict'
 
 let express= require('express'),
-	router= require.Router(),
+	router= express.Router(),
 	bodyParser= require('body-parser'),
 	multer= require('multer');
 
-let service= require('./Services/user'),
-	utilities= require('./Utilities/util');
+let service= require('../Services/user'),
+	utilities= require('../Utilities/util');
 
 router.use(bodyParser.urlencoded({
 	extended: true

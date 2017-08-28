@@ -1,4 +1,4 @@
-let mongo= require('mongo'),
+let mongo= require('mongoose'),
 	schema= mongo.Schema;
 let url= 'mongodb://127.0.0.1:27017/module';
 

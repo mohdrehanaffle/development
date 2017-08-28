@@ -1,7 +1,7 @@
 'use strict'
 
-let dbs= require('./Models/user'),
-	utilities= require('./Utilities/util');
+let dbs= require('../Models/user'),
+	utilities= require('../Utilities/util');
 
 let model= dbs.model;
 
@@ -15,15 +15,20 @@ let signup= (dataFromUser, requiredKey, dbs, callback)=> {
 	var requiredKey= ['firstName', 'password', 'email', 'phoneNumber'];
 	let keyArray= utilities.isKeyExist(dataFromUser, requiredKey);
 	if(!keyArray.status) {
-		return callback("Required field "+keyArray.key+" is missing");
+		return callback({'statusCode': 0, 'statusMessage': "Required field "+keyArray.key+" is missing"});
 	}
 
 	keyArray= utilities.isValueExistForKey(dataFromUser);
 	if(!keyArray.status) {
-		return callback("Value is missing for "+keyArray.key+" key");
+		return callback({'statusCode': 0, 'statusMessage': "Value is missing for "+keyArray.key+" key"});
 	}
 
-	let dataFromUser= utilities.trim(dataFromUser);
+	dataFromUser= utilities.trim(dataFromUser);
+
+	let validate= utilities.checkValidate(dataFromUser);
+	if(!validate.status) {
+		return callback({'statusCode': 0, 'statusMessage': "Please enter a valid "+validate.value});
+	}
 
 	let finalObject= {
 		'firstName': dataFromUser.firstName,
@@ -47,10 +52,10 @@ let signup= (dataFromUser, requiredKey, dbs, callback)=> {
 		var userData= new model(finalObject);
 		userData.save((err) => {
 			if(err) {
-				callback(err);
+				callback({'statusCode': 0, 'statusMessage': err});
 			}
 			else {
-				callback("")
+				callback({'statusCode': 1, 'statusMessage': "Signup successfully"})
 			}
 		})
 	}
