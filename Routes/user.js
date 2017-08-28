@@ -46,4 +46,18 @@ router.post('/signUp', upload.any(), (req, res) => {
 	}
 })
 
+ /* User Login. 
+ Consumes: application/json
+Required: email,userName,phoneNumber
+Produces: application/json
+DB : mysql/mongodb
+loginKey : 1(email),2(userName),3(phoneNumber)
+*/
+router.post('/login', (req, res) => {
+var DB = utilities.checkDatabase();
+ var loginKey =utilities.loginkey(req.body);
+  userService.login(req.body, DB,loginKey,(data) => {
+        res.send(data);
+    });
+});
 module.exports= router;

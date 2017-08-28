@@ -63,6 +63,42 @@ let signup= (dataFromUser, requiredKey, dbs, callback)=> {
 
 }
 
+//Method to authenticate user
+/**
+DB : mysql/mongodb
+loginKey : email/mobile
+**/
+let login = (data,requiredKey, DB,loginKey,callback)=>{
+    var DB=1;
+    var phoneDigit = 10;
+	var requiredKey = ['email','phoneNumber'];
+	
+    var loginKey =utilities.loginkey(req.body);
+    var iskeyExists = utilities.iskeyExists(data,requiredKey);
+
+    if(iskeyExists.status!=true)
+    {
+ 	return callback({"statusCode":0, "statusMessage" : "required field"+iskeyExists.key +"is missing"})
+    }
+    var isValueExistsForkey    = utilities.isValueExistsForkey(data,requiredKey);
+    if(isValueExistsForkey.status!=true)
+    {
+ 	return callback({"statusCode":0, "statusMessage" :"required value"+iskeyExists.key +"is missing"})
+    }
+   
+   var checkValidate = utilities.checkValidate(data,phoneDigit);
+   if(checkValidate.status !=true)
+   {
+   	return callback({"statusCode":0, "statusMessage" :"required value"+checkValidate.value +"is not validate"})
+   }
+
+
+
+
+}
+
+
+
 module.exports= {
 	signup: signup 
 }

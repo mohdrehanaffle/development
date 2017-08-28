@@ -73,6 +73,16 @@ let trim= (obj)=> {
 	}
 	return obj;
 }
+let loginKey=(data)=>{
+
+     if(data.hasOwnProperty('email')){
+        return 'email';
+     } 
+     else if(data.hasOwnProperty('phoneNumber')){
+        return 'phoneNumber';
+     }
+
+     }
 
 module.exports= {
 	isKeyExist: isKeyExist,
