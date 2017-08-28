@@ -17,7 +17,7 @@ let userSchema= new schema({
 	lastName: {type: String},
 	email: {type: String},
 	password: {type: String},
-	mobile: {type: Number},
+	phoneNumber: {type: Number},
 	gender: {type: String},
 	dateOfBirth: {type: String},
 	image: {type: String}

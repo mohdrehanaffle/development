@@ -25,7 +25,8 @@ let signup= (dataFromUser, requiredKey, dbs, callback)=> {
 
 	dataFromUser= utilities.trim(dataFromUser);
 
-	let validate= utilities.checkValidate(dataFromUser);
+	let phoneDigit= 10;
+	let validate= utilities.checkValidate(dataFromUser, phoneDigit);
 	if(!validate.status) {
 		return callback({'statusCode': 0, 'statusMessage': "Please enter a valid "+validate.value});
 	}
