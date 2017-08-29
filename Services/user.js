@@ -70,11 +70,6 @@ let signup= (dataFromUser, dbs, callback)=> {
 }
 
 
-
-
-
-
-
 //Method to authenticate user
 /**
 DB : mysql/mongodb
