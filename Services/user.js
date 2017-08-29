@@ -10,17 +10,17 @@ let model= dbs.model;
   Method: signup.
   Parameter: DataFromUser, Required Key.
   return-type: json*/
-let signup= (dataFromUser, requiredKey, dbs, callback)=> {
+let signup= (dataFromUser, dbs, callback)=> {
 	
 	var requiredKey= ['firstName', 'password', 'email', 'phoneNumber'];
 	let keyArray= utilities.isKeyExist(dataFromUser, requiredKey);
 	if(!keyArray.status) {
-		return callback({'statusCode': 0, 'statusMessage': "Required field "+keyArray.key+" is missing"});
+		return callback({'statusCode': 404, 'statusMessage': "Required field "+keyArray.key+" is missing"});
 	}
 
 	keyArray= utilities.isValueExistForKey(dataFromUser);
 	if(!keyArray.status) {
-		return callback({'statusCode': 0, 'statusMessage': "Value is missing for "+keyArray.key+" key"});
+		return callback({'statusCode': 404, 'statusMessage': "Value is missing for "+keyArray.key+" key"});
 	}
 
 	dataFromUser= utilities.trim(dataFromUser);
@@ -28,8 +28,10 @@ let signup= (dataFromUser, requiredKey, dbs, callback)=> {
 	let phoneDigit= 10;
 	let validate= utilities.checkValidate(dataFromUser, phoneDigit);
 	if(!validate.status) {
-		return callback({'statusCode': 0, 'statusMessage': "Please enter a valid "+validate.value});
+		return callback({'statusCode': 404, 'statusMessage': "Please enter a valid "+validate.value});
 	}
+
+	dataFromUser.password= utilities.encryptString(dataFromUser.password);
 
 	let finalObject= {
 		'firstName': dataFromUser.firstName,
@@ -48,15 +50,20 @@ let signup= (dataFromUser, requiredKey, dbs, callback)=> {
 		finalObject.gender= dataFromUser.gender;
 	}
 
-	let checkDbs= utilities.checkDbs.dbs;
+	if(dataFromUser.image){
+		finalObject.image= dataFromUser.image;
+	}
+
+	let checkDbs= utilities.checkDbs[dbs];
+		console.log("finalObject",finalObject)
 	if(checkDbs== 'mongodb') {
 		var userData= new model(finalObject);
 		userData.save((err) => {
 			if(err) {
-				callback({'statusCode': 0, 'statusMessage': err});
+				callback({'statusCode': 500, 'statusMessage': err});
 			}
 			else {
-				callback({'statusCode': 1, 'statusMessage': "Signup successfully"})
+				callback({'statusCode': 200, 'statusMessage': "Signup successfully"})
 			}
 		})
 	}

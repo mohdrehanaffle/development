@@ -15,9 +15,9 @@ mongo.connect(url, (err)=> {
 let userSchema= new schema({
 	firstName: {type: String},
 	lastName: {type: String},
-	email: {type: String},
+	email: {type: String, unique: true},
 	password: {type: String},
-	phoneNumber: {type: Number},
+	phoneNumber: {type: Number, unique: true},
 	gender: {type: String},
 	dateOfBirth: {type: String},
 	image: {type: String}

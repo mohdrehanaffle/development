@@ -20,6 +20,8 @@ app.use(function(req, res, next) {
 	next();
 })
 
+app.use('/user', routes);
+
 //First api to check if server is running
 app.get('/', function(req, res) {
 	res.send("hello world");
