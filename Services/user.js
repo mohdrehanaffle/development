@@ -55,7 +55,6 @@ let signup= (dataFromUser, dbs, callback)=> {
 	}
 
 	let checkDbs= utilities.checkDbs[dbs];
-		console.log("finalObject",finalObject)
 	if(checkDbs== 'mongodb') {
 		var userData= new model(finalObject);
 		userData.save((err) => {
@@ -70,6 +69,63 @@ let signup= (dataFromUser, dbs, callback)=> {
 
 }
 
+
+
+
+
+
+
+//Method to authenticate user
+/**
+DB : mysql/mongodb
+loginKey : email/mobile
+**/
+let login = (data,DB,loginkey,callback)=>{
+	data=utilities.trim(data)
+    var DB=1;
+    var phoneDigit = 10;
+	var requiredKey=[];
+	if(data.email) {
+ 	requiredKey.push('email')
+    }
+    if(data.phoneNumber) {
+ 	requiredKey.push('phoneNumber')
+    }
+    var iskeyExists = utilities.isKeyExist(data,requiredKey);
+    console.log(iskeyExists)
+    if(!iskeyExists.status) {
+ 	return callback({"statusCode":404, "statusMessage" : "required field"+iskeyExists.key +"is missing"})
+    }
+    var isValueExistsForkey    = utilities.isValueExistForKey(data,requiredKey);
+    if(isValueExistsForkey.status!=true) {
+ 	return callback({"statusCode":404, "statusMessage" :"required value"+iskeyExists.key +"is missing"});
+    }
+   
+  	let validate= utilities.checkValidate(data, phoneDigit);
+	if(validate.status!=true) {
+		return callback({'statusCode': 404, 'statusMessage': "Please enter a valid "+validate.value});
+	}
+	/*encrypt the password for match */
+   	data.password=utilities.encryptString(data.password);
+			
+  /*check loginKey Exists in database */ 
+	model.findOne ({loginkey:data.loginkey,password:data.password},function(err,data){
+		if(err ) {
+			callback({'statusCode': 500, 'statusMessage': "Internal Server Error"})
+		}
+		
+		if(data==null) {
+			console.log(data)
+			callback({'statusCode': 404, 'statusMessage': "Email or Password is not valid"})
+			
+		}
+		 callback({'statusCode': 200, 'statusMessage': "Login successfully","result":data})
+	})
+
+}
+
+
 module.exports= {
-	signup: signup 
+	signup: signup,
+	login: login 
 }

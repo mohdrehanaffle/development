@@ -93,6 +93,19 @@ let encryptString= (text)=> {
     return crypted;
 }
 
+/*Description: Checking user entered key.
+  Method: loginKey.
+  Parameter: dataObject*/
+let loginKey=(data)=>{
+	if(data.email) {
+        return 'email';
+    } 
+    else if(data.phoneNumber) {
+        return 'phoneNumber';
+    }
+
+}
+
 /*Description: Generate OTP.
   Method: generateOtp.*/
 let generateOtp= ()=> {
@@ -119,5 +132,6 @@ module.exports= {
 	trim: trim,
 	encryptString: encryptString,
 	generateOtp: generateOtp,
-	sendSMS, sendSMS
+	sendSMS, sendSMS,
+	loginKey: loginKey
 }
