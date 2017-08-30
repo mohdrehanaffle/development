@@ -55,7 +55,6 @@ DB : mysql/mongodb
 loginKey : 1(email),2(userName),3(phoneNumber)
 */
 router.post('/login', upload.any(), (req, res) => {
-	console.log(req.body)
 	var DB = utilities.checkDbs[1];
 	var loginkey =utilities.loginKey(req.body);
 

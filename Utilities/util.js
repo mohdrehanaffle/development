@@ -11,7 +11,6 @@ let encryption= {
   Method: isKeyExist.
   Parameter: dataObject, required Key.*/
 let isKeyExist= (obj, keyArray)=> {
-	//console.log("obj",obj)
 	for(var key in keyArray) {
 		if(!(keyArray[key] in obj)) {
 			return {'status': false, 'key': keyArray[key]};
@@ -61,8 +60,7 @@ let checkValidate= (obj, phoneDigit)=> {
 	}
 	if(obj.password){
 		var password= obj.password;
-		var passwordPattern= /^(?=.*[a-z])(?=.*[A-Z])(?=.{6,})/;
-		if(!passwordPattern.test(password)){
+		if(password.length< 6){
 			return {'status': false, 'value': 'password'};
 		}
 		else {
@@ -75,12 +73,25 @@ let checkValidate= (obj, phoneDigit)=> {
   Method: trim
   Parameter: dataObject*/
 let trim= (obj)=> {
-	var data= obj;
-	for(var key in obj) {
-		var value= obj[key].trim();
-		obj[key]= value;
+	if(obj.key) {
+		var myKey= obj.key;
+		obj.key= "";
+		var data= obj;
+		for(var field in obj) {
+			var value= obj[field].trim();
+			obj[field]= value;
+		}
+		obj.key= myKey;
+		return obj;
 	}
-	return obj;
+	else {
+		var data= obj;
+		for(var key in obj) {
+			var value= obj[key].trim();
+			obj[key]= value;
+		}
+		return obj;
+	}
 }
 
 /*Description: Encrypted password.
@@ -124,6 +135,34 @@ let sendSMS = (to, OTP, cb) => {
     });
 }
 
+/*Description: Find info.
+  Method: findKey.
+  Parameter: dbsObject, keyArray*/
+let findKey= (info, keyArray) => {
+	var obj= {};
+	for(var key of keyArray) {
+		if(info[key]) {
+			obj[key]= info[key];
+		}
+	}
+	return obj;
+}
+
+
+/*Description: Find All Field of User.
+  Method: findAll.
+  Parameter: dbsObject, dataObject*/
+let findAll= (obj, dbsObject)=> {
+	var allField= dbsObject;
+	for(var key of obj) {
+		if(!dbsObject[key]) {
+			allField[key]= "";
+		}
+	}
+	return allField;
+}
+
+
 module.exports= {
 	isKeyExist: isKeyExist,
 	isValueExistForKey: isValueExistForKey,
@@ -133,5 +172,7 @@ module.exports= {
 	encryptString: encryptString,
 	generateOtp: generateOtp,
 	sendSMS, sendSMS,
-	loginKey: loginKey
+	loginKey: loginKey,
+	findKey: findKey,
+	findAll: findAll
 }

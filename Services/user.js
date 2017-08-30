@@ -12,6 +12,7 @@ let model= dbs.model;
   return-type: json*/
 let signup= (dataFromUser, dbs, callback)=> {
 	
+	var field= ['firstName', 'lastName', 'email', 'password', 'phoneNumber', 'dateOfBirth', 'gender', 'image'];
 	var requiredKey= ['firstName', 'password', 'email', 'phoneNumber'];
 	let keyArray= utilities.isKeyExist(dataFromUser, requiredKey);
 	if(!keyArray.status) {
@@ -51,7 +52,11 @@ let signup= (dataFromUser, dbs, callback)=> {
 	}
 
 	if(dataFromUser.image){
-		finalObject.image= dataFromUser.image;
+		finalObject.image= 'http://192.168.1.233:3000/'+dataFromUser.image;
+	}
+
+	if(dataFromUser.userId){
+		finalObject.userId= dataFromUser.userId;
 	}
 
 	let checkDbs= utilities.checkDbs[dbs];
@@ -62,7 +67,15 @@ let signup= (dataFromUser, dbs, callback)=> {
 				callback({'statusCode': 500, 'statusMessage': err});
 			}
 			else {
-				callback({'statusCode': 200, 'statusMessage': "Signup successfully"})
+				model.findOne({"email": finalObject.email}, {"__v": 0}, function(err, data) {
+					if(err) {
+						callback({'statusCode': 500, 'statusMessage': "Internal Server Error"})
+					}
+					else {
+						var allField= utilities.findAll(field, data);
+						callback({'statusCode': 200, 'statusMessage': "signup successfully", "result":allField})
+					}
+				})
 			}
 		})
 	}
@@ -87,7 +100,6 @@ let login = (data,DB,loginkey,callback)=>{
  	requiredKey.push('phoneNumber')
     }
     var iskeyExists = utilities.isKeyExist(data,requiredKey);
-    console.log(iskeyExists)
     if(!iskeyExists.status) {
  	return callback({"statusCode":404, "statusMessage" : "required field"+iskeyExists.key +"is missing"})
     }
@@ -104,17 +116,28 @@ let login = (data,DB,loginkey,callback)=>{
    	data.password=utilities.encryptString(data.password);
 			
   /*check loginKey Exists in database */ 
-	model.findOne ({loginkey:data.loginkey,password:data.password},function(err,data){
+	model.findOne ({loginkey:data.loginkey,password:data.password},{"__v":0}, function(err,info){
 		if(err ) {
 			callback({'statusCode': 500, 'statusMessage': "Internal Server Error"})
 		}
 		
-		if(data==null) {
-			console.log(data)
+		if(info==null) {
 			callback({'statusCode': 404, 'statusMessage': "Email or Password is not valid"})
 			
 		}
-		 callback({'statusCode': 200, 'statusMessage': "Login successfully","result":data})
+		if(data.key) {
+			if(data.key.length == 0) {
+				callback({'statusCode': 200, 'statusMessage': "Login successfully"});
+			}
+			else {
+				var findKey=utilities.findKey(info,data.key);
+				callback({'statusCode': 200, 'statusMessage': "Login successfully", "result": findKey});
+			}
+		}
+		else {
+			callback({'statusCode': 200, 'statusMessage': "Login successfully", "result": info});
+		}
+		
 	})
 
 }
