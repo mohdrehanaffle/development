@@ -6,7 +6,8 @@ let express= require('express'),
 	multer= require('multer');
 
 let service= require('../Services/user'),
-	utilities= require('../Utilities/util');
+	utilities= require('../Utilities/util'),
+	config= require('../config/config');
 
 let store= multer.diskStorage({
 	destination: function(req, file, cb) {
@@ -17,24 +18,24 @@ let store= multer.diskStorage({
 	}
 });
 
-var upload= multer({storage: store});
+let upload= multer({storage: store});
 
 router.use(bodyParser.urlencoded({
 	extended: true
 }));
 router.use(bodyParser.json());
 
-/* user signup.
+/* user Signup.
 consumes: Appilication/json.
-required: firstName, userName, password, email, phoneNumber.
-optional: lastName, Date_Of_Birth, gender, image.
+required: fN, userName, pwd, email, pNo.
+optional: lN, Date_Of_Birth, gender, img.
 produce: Appilication/json.*/
 router.post('/signUp', upload.any(), (req, res) => {
-	var dbs= 1;
-	var body= req.body;
+	let dbs= 1;
+	let body= req.body;
 	if(req.files.length >0) {
-		var image= req.files[0].originalname;
-		body.image= image;
+		let img= req.files[0].originalname;
+		body.img= img;
 		service.signup(body, dbs, (data)=> {
 			res.send(data);
 		})
@@ -49,19 +50,63 @@ router.post('/signUp', upload.any(), (req, res) => {
 
 /* User Login. 
  Consumes: application/json
-Required: email,userName,phoneNumber
+Required: email,userName,pNo
 Produces: application/json
 DB : mysql/mongodb
-loginKey : 1(email),2(userName),3(phoneNumber)
+loginKey : 1(email),2(userName),3(pNo)
 */
-router.post('/login', upload.any(), (req, res) => {
-	var DB = utilities.checkDbs[1];
-	var loginkey =utilities.loginKey(req.body);
+router.post('/login', (req, res) => {
+	let dbs = config.checkDbs[1];
+	let reqKey= config.reqKey;
+	let loginType =utilities.loginType(req.body,reqKey);
+	let resValue= config.resValue;
 
-	service.login(req.body, DB,loginkey,(data) => {
+	service.login(req.body, loginType, dbs, reqKey, resValue, (data) => {
         res.send(data);
     });
 });
+
+
+/* user Forget.
+consumes: Appilication/json.
+required: email.
+produce: Appilication/json.*/
+router.post('/forget', (req,res) => {
+	let dbs= 1;
+	let body= req.body;
+
+	service.forget(body, dbs, (data) => {
+		res.send(data);
+	})
+})
+
+
+/*user verify Forget.
+consumes: Appilication/json.
+required: pwd, cpwd
+produce: Appilication/json.*/
+router.post('/verifyForget', (req,res) => {
+	let dbs= 1;
+	let body= req.body;
+
+	service.verifyForget(req.query, body, dbs, (data) => {
+		res.send(data);
+	})
+})
+
+
+/*user verify OTP.
+consumes: Appilication/json.
+required: email, pNo, otp
+produce: Appilication/json.*/
+router.post('/verifyOTP', (req,res) => {
+	let dbs= 1;
+	let body= req.body;
+
+	service.verifyOTP(body, dbs, (data) => {
+		res.send(data);
+	})
+})
 
 
 module.exports= router;

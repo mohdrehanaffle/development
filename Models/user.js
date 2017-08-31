@@ -13,14 +13,18 @@ mongo.connect(url, (err)=> {
 })
 
 let userSchema= new schema({
-	firstName: {type: String},
-	lastName: {type: String},
+	socialId: {type: String},
+	loginType: {type: String},
+	token: {type: Number},
+	fN: {type: String},
+	lN: {type: String},
 	email: {type: String, unique: true},
-	password: {type: String},
-	phoneNumber: {type: Number, unique: true},
+	pwd: {type: String},
+	pNo: {type: Number, unique: true},
 	gender: {type: String},
-	dateOfBirth: {type: String},
-	image: {type: String}
+	DOB: {type: String},
+	img: {type: String},
+	otp: {type: String}
 }, {collection: 'userInfo'});
 
 let model= mongo.model('userInfo', userSchema);

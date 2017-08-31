@@ -1,31 +1,32 @@
 'use strict'
 
 let crypto= require('crypto');
+	//client = require('twilio')(config.TWILIO_CONFIG.sid, config.TWILIO_CONFIG.auth_token);
 
 let encryption= {
 	algorithm: 'aes-256-ctr',
-	password: 'node@crypto123#-encryption'
+	pwd: 'node@crypto123#-encryption'
 }
 
 /*Description: Check Key exist in data Object.
   Method: isKeyExist.
   Parameter: dataObject, required Key.*/
 let isKeyExist= (obj, keyArray)=> {
-	for(var key in keyArray) {
+
+	for(let key in keyArray) {
+		
 		if(!(keyArray[key] in obj)) {
 			return {'status': false, 'key': keyArray[key]};
-		}
-		else {
-			return {'status': true};
-		}
+		}		
 	}
+	return {'status': true};
 }
 
 /*Description: Check value exist in data Object.
   Method: isValueExistForKey.
   Parameter: dataObject.*/
 let isValueExistForKey= (obj)=> {
-  	for(var key in obj) {
+  	for(let key in obj) {
   		if(obj[key]==""){
   			return {'status': false, 'key': key};
   		}
@@ -35,73 +36,66 @@ let isValueExistForKey= (obj)=> {
   	}
   }
 
- /*Description: Check Database
-   Method: checkDbs.*/
-let checkDbs= {
-	'1': 'mongodb',
-	'2': 'mysql'
-};
-
 /*Description: Check Validation.
   Method: checkValidate
   Parameter: dataObject*/
 let checkValidate= (obj, phoneDigit)=> {
 	if(obj.email) {
-		var email= obj.email;
-		var emailPettern= /^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/;
+		let email= obj.email;
+		let emailPettern= /^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/;
 		if(!emailPettern.test(email)) {
 			return {'status': false, 'value': 'email'};
 		}
 	}
-	if(obj.phoneNumber){
-		var phoneNumber= obj.phoneNumber.toString();
-		if(phoneNumber.length!=phoneDigit)
-		return {'status': false, 'value': 'phoneNumber'};
+	if(obj.pNo){
+		let pNo= obj.pNo.toString();
+		if(pNo.length!=phoneDigit)
+		return {'status': false, 'value': 'pNo'};
 	}
-	if(obj.password){
-		var password= obj.password;
-		if(password.length< 6){
-			return {'status': false, 'value': 'password'};
+	if(obj.pwd){
+		let pwd= obj.pwd;
+		if(pwd.length< 6){
+			return {'status': false, 'value': 'pwd'};
 		}
 		else {
 		return {'status': true};
 		}
 	}
+	else {
+		return {'status': true};
+	}
+
 }
 
 /*Description: Trim the value of data Object.
   Method: trim
   Parameter: dataObject*/
-let trim= (obj)=> {
-	if(obj.key) {
-		var myKey= obj.key;
-		obj.key= "";
-		var data= obj;
-		for(var field in obj) {
-			var value= obj[field].trim();
-			obj[field]= value;
-		}
-		obj.key= myKey;
-		return obj;
-	}
-	else {
-		var data= obj;
-		for(var key in obj) {
-			var value= obj[key].trim();
-			obj[key]= value;
-		}
-		return obj;
-	}
+let trim =(obj) => {
+  if (!Array.isArray(obj) && typeof obj != 'object') return obj;
+  return Object.keys(obj).reduce(function(acc, key) {
+    acc[key.trim()] = typeof obj[key] == 'string'? obj[key].trim() : trim(obj[key]);
+    return acc;
+  }, Array.isArray(obj)? []:{});
 }
 
-/*Description: Encrypted password.
+/*Description: Encrypted data.
   Method: encryptString.
-  Parameter: password*/
+  Parameter: pwd*/
 let encryptString= (text)=> {
-	var cipher= crypto.createCipher(encryption.algorithm, encryption.password);
-	var crypted = cipher.update(text, 'utf8', 'hex')
+	let cipher= crypto.createCipher(encryption.algorithm, encryption.pwd);
+	let crypted = cipher.update(text, 'utf8', 'hex')
     crypted += cipher.final('hex');
     return crypted;
+}
+
+/*Description: Decrypted data.
+  Method: decryptString.
+  Parameter: pwd*/
+var decryptString = function decrypt(text) {
+    var decipher = crypto.createDecipher(encryption.algorithm, encryption.pwd)
+    var dec = decipher.update(text, 'hex', 'utf8')
+    dec += decipher.final('utf8');
+    return dec;
 }
 
 /*Description: Checking user entered key.
@@ -111,8 +105,8 @@ let loginKey=(data)=>{
 	if(data.email) {
         return 'email';
     } 
-    else if(data.phoneNumber) {
-        return 'phoneNumber';
+    else if(data.pNo) {
+        return 'pNo';
     }
 
 }
@@ -125,7 +119,7 @@ let generateOtp= ()=> {
 
 /*Description: Send an OTP.
   Method: sendSMS.
-  Parameter: phoneNumber, OTP*/
+  Parameter: pNo, OTP*/
 let sendSMS = (to, OTP, cb) => {
     to.length > 10 ? to = to.replace("+65", "+91") : true;
     client.messages.create({
@@ -139,8 +133,8 @@ let sendSMS = (to, OTP, cb) => {
   Method: findKey.
   Parameter: dbsObject, keyArray*/
 let findKey= (info, keyArray) => {
-	var obj= {};
-	for(var key of keyArray) {
+	let obj= {};
+	for(let key of keyArray) {
 		if(info[key]) {
 			obj[key]= info[key];
 		}
@@ -153,8 +147,8 @@ let findKey= (info, keyArray) => {
   Method: findAll.
   Parameter: dbsObject, dataObject*/
 let findAll= (obj, dbsObject)=> {
-	var allField= dbsObject;
-	for(var key of obj) {
+	let allField= dbsObject;
+	for(let key of obj) {
 		if(!dbsObject[key]) {
 			allField[key]= "";
 		}
@@ -162,17 +156,29 @@ let findAll= (obj, dbsObject)=> {
 	return allField;
 }
 
+/*Description: Find login type.
+  Method: loginType.
+  Parameter: dataObject, reqkey*/
+let loginType = (obj,reqkey) =>{
+for(let key of reqkey) {
+	
+	if(obj.hasOwnProperty(key)){
+ return key;
+	}
+
+}
+}
 
 module.exports= {
 	isKeyExist: isKeyExist,
 	isValueExistForKey: isValueExistForKey,
-	checkDbs: checkDbs,
 	checkValidate: checkValidate,
 	trim: trim,
 	encryptString: encryptString,
+	decryptString: decryptString,
 	generateOtp: generateOtp,
 	sendSMS, sendSMS,
-	loginKey: loginKey,
+	loginType: loginType,
 	findKey: findKey,
 	findAll: findAll
 }
